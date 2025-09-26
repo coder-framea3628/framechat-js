@@ -1,0 +1,1061 @@
+// ===== Injetar Link de Fontes =====
+const fontLink = document.createElement('link');
+fontLink.href = 'https://fonts.googleapis.com/css2?family=Montserrat:wght@500;600&display=swap';
+fontLink.rel = 'stylesheet';
+document.head.appendChild(fontLink);
+
+// ===== Injetar CSS (estilo dark theme minimalista Apple-like, responsividade aprimorada) =====
+const style = document.createElement('style');
+style.textContent = `
+:root {
+  --bg-color: #141414;
+  --text-color: #fff;
+  --accent-color: #AB865B;
+  --accent-light: #D3AD83;
+  --secondary-bg: #1a1a1a;
+  --message-bg-received: #2a2a2a;
+  --border-color: rgba(255,255,255,0.1);
+}
+
+body {
+  margin: 0;
+  font-family: 'Montserrat', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  background: var(--bg-color);
+  height: 100vh;
+  overflow: hidden;
+  color: var(--text-color);
+  display: flex;
+  flex-direction: column;
+}
+
+#navMenu {
+  position: fixed;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 98%;
+  max-width: 1280px;
+  background: linear-gradient(135deg, rgba(32,32,32,0.9), rgba(171,134,91,0.9));
+  backdrop-filter: blur(12px);
+  border-radius: 0 0 25px 25px;
+  padding: 14px 28px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+  transition: all .5s cubic-bezier(0.25,0.46,0.45,0.94);
+  z-index: 9999;
+  border: 1px solid var(--border-color);
+}
+
+.logo-img {
+  width: 100px;
+  height: auto;
+  margin-right: auto;
+  cursor: pointer;
+}
+
+.icon-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 22px;
+  margin-left: auto;
+}
+
+#navMenu svg, #navMenu img:not(.logo-img) {
+  width: 28px;
+  height: 28px;
+  cursor: pointer;
+  transition: all .3s cubic-bezier(0.25,0.46,0.45,0.94);
+  vertical-align: middle;
+  fill: var(--text-color);
+}
+
+#navMenu svg:hover, #navMenu img:not(.logo-img):hover {
+  transform: scale(1.08) rotate(5deg);
+  filter: drop-shadow(0 2px 4px rgba(171,134,91,0.3));
+}
+
+.notif-dot {
+  position: absolute;
+  top: -6px;
+  right: -6px;
+  background: linear-gradient(135deg, var(--accent-color), var(--accent-light));
+  color: #fff;
+  font-size: 11px;
+  width: 18px;
+  height: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  font-weight: 600;
+  box-shadow: 0 2px 8px rgba(171,134,91,0.4);
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0% { box-shadow: 0 0 0 0 rgba(171,134,91,0.7); }
+  70% { box-shadow: 0 0 0 10px rgba(171,134,91,0); }
+  100% { box-shadow: 0 0 0 0 rgba(171,134,91,0); }
+}
+
+@keyframes shake {
+  0%, 100% { transform: rotate(0); }
+  25% { transform: rotate(-10deg); }
+  75% { transform: rotate(10deg); }
+}
+
+.shake {
+  animation: shake .7s ease-in-out;
+}
+
+.overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.6);
+  backdrop-filter: blur(8px);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 10000;
+}
+
+.popup {
+  background: linear-gradient(135deg, rgba(32,32,32,0.98), rgba(171,134,91,0.98));
+  color: var(--text-color);
+  width: 90%;
+  max-width: 450px;
+  min-width: 320px;
+  border-radius: 24px;
+  padding: 24px;
+  box-shadow: 0 12px 48px rgba(0,0,0,0.5);
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  transform: translateY(50px);
+  opacity: 0;
+  transition: all .6s cubic-bezier(0.25,0.46,0.45,0.94);
+  border: 1px solid var(--border-color);
+  position: relative;
+  overflow: hidden;
+}
+
+.popup::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+}
+
+.popup.active {
+  transform: translateY(0);
+  opacity: 1;
+}
+
+.popup h2 {
+  margin: 0 0 12px;
+  font-weight: 600;
+  font-size: 20px;
+  text-align: center;
+  letter-spacing: 0.5px;
+}
+
+.popup button {
+  background: linear-gradient(135deg, var(--accent-color), var(--accent-light));
+  color: #fff;
+  border: none;
+  padding: 14px;
+  border-radius: 12px;
+  font-weight: 600;
+  font-size: 16px;
+  cursor: pointer;
+  transition: all .3s;
+  box-shadow: 0 4px 12px rgba(171,134,91,0.3);
+}
+
+.popup button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(171,134,91,0.4);
+}
+
+#conversations {
+  margin-top: 100px;
+  padding: 20px;
+  overflow-y: auto;
+  flex: 1;
+}
+
+#conversations h1 {
+  font-size: 24px;
+  margin-bottom: 16px;
+}
+
+.search-bar {
+  background: var(--secondary-bg);
+  border-radius: 12px;
+  padding: 12px 16px;
+  display: flex;
+  align-items: center;
+  margin-bottom: 20px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+}
+
+.search-bar svg {
+  width: 20px;
+  height: 20px;
+  margin-right: 12px;
+  fill: var(--text-color);
+}
+
+.search-input {
+  background: transparent;
+  border: none;
+  color: var(--text-color);
+  flex: 1;
+  font-size: 16px;
+}
+
+.search-input::placeholder {
+  color: rgba(255,255,255,0.6);
+}
+
+.toggle-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+
+.toggle-label {
+  font-size: 14px;
+}
+
+.toggle {
+  width: 50px;
+  height: 26px;
+  background: var(--secondary-bg);
+  border-radius: 26px;
+  position: relative;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+
+.toggle::before {
+  content: '';
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 20px;
+  height: 20px;
+  background: var(--text-color);
+  border-radius: 50%;
+  transition: transform 0.3s;
+}
+
+.toggle.active {
+  background: var(--accent-color);
+}
+
+.toggle.active::before {
+  transform: translateX(24px);
+}
+
+.conv-list {
+  list-style: none;
+  padding: 0;
+}
+
+.conv-item {
+  display: flex;
+  align-items: center;
+  padding: 12px;
+  border-radius: 16px;
+  margin-bottom: 12px;
+  background: var(--secondary-bg);
+  cursor: pointer;
+  transition: all .3s;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.conv-item:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(171,134,91,0.2);
+}
+
+.profile-photo {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  object-fit: cover;
+  margin-right: 16px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+}
+
+.conv-info {
+  flex: 1;
+}
+
+.conv-name {
+  font-weight: 600;
+  font-size: 16px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.verified-badge {
+  width: 16px;
+  height: 16px;
+  margin-left: 4px;
+}
+
+.conv-snippet {
+  font-size: 14px;
+  color: rgba(255,255,255,0.7);
+  margin-top: 4px;
+}
+
+.conv-time {
+  font-size: 12px;
+  color: rgba(255,255,255,0.5);
+  text-align: right;
+}
+
+#chatView {
+  display: none;
+  flex-direction: column;
+  height: 100vh;
+}
+
+.chat-header {
+  background: linear-gradient(135deg, rgba(32,32,32,0.9), rgba(171,134,91,0.9));
+  backdrop-filter: blur(12px);
+  padding: 14px 20px;
+  display: flex;
+  align-items: center;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.3);
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 9998;
+}
+
+.back-btn {
+  width: 24px;
+  height: 24px;
+  margin-right: 16px;
+  cursor: pointer;
+}
+
+.chat-profile-photo {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  margin-right: 12px;
+}
+
+.chat-name {
+  font-weight: 600;
+  font-size: 18px;
+  flex: 1;
+}
+
+.chat-icons {
+  display: flex;
+  gap: 20px;
+}
+
+.chat-icons svg {
+  width: 24px;
+  height: 24px;
+  cursor: pointer;
+}
+
+#messages {
+  margin-top: 70px;
+  padding: 20px;
+  flex: 1;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.message {
+  max-width: 70%;
+  padding: 12px 16px;
+  border-radius: 20px;
+  font-size: 15px;
+  line-height: 1.4;
+  position: relative;
+}
+
+.received {
+  background: var(--message-bg-received);
+  align-self: flex-start;
+  border-bottom-left-radius: 4px;
+}
+
+.sent {
+  background: var(--accent-color);
+  color: #fff;
+  align-self: flex-end;
+  border-bottom-right-radius: 4px;
+}
+
+.message-time {
+  font-size: 11px;
+  color: rgba(255,255,255,0.5);
+  margin-top: 4px;
+  text-align: right;
+}
+
+.media-request {
+  background: var(--message-bg-received);
+  border-radius: 20px;
+  padding: 16px;
+  max-width: 80%;
+  align-self: flex-start;
+}
+
+.media-title {
+  font-size: 14px;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+
+.media-price {
+  font-size: 24px;
+  font-weight: 600;
+  margin-bottom: 12px;
+}
+
+.unlock-btn {
+  background: var(--accent-color);
+  color: #fff;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  width: 100%;
+}
+
+.media-info {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  color: rgba(255,255,255,0.7);
+  margin-top: 12px;
+}
+
+#inputArea {
+  background: var(--secondary-bg);
+  padding: 12px 20px;
+  display: flex;
+  align-items: center;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  box-shadow: 0 -4px 16px rgba(0,0,0,0.3);
+}
+
+.input-icon {
+  width: 24px;
+  height: 24px;
+  margin-right: 16px;
+  cursor: pointer;
+  transition: transform 0.3s;
+}
+
+.input-icon:hover {
+  transform: scale(1.1);
+}
+
+#messageInput {
+  flex: 1;
+  background: var(--bg-color);
+  border: 1px solid var(--border-color);
+  border-radius: 20px;
+  padding: 10px 16px;
+  color: var(--text-color);
+  font-size: 15px;
+}
+
+#sendBtn {
+  width: 40px;
+  height: 40px;
+  background: var(--accent-color);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-left: 12px;
+  cursor: pointer;
+}
+
+#blurredList {
+  position: relative;
+  margin-top: 20px;
+}
+
+.blur-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  backdrop-filter: blur(8px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 20px;
+  color: var(--text-color);
+}
+
+.blur-lock {
+  width: 40px;
+  height: 40px;
+  margin-bottom: 12px;
+  stroke: var(--accent-color);
+}
+
+.blur-text {
+  font-size: 14px;
+  margin-bottom: 16px;
+  line-height: 1.5;
+}
+
+.blur-button {
+  background: linear-gradient(135deg, var(--accent-color), var(--accent-light));
+  color: #fff;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(171,134,91,0.3);
+  transition: all .3s;
+}
+
+.blur-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(171,134,91,0.4);
+}
+
+.toast {
+  position: fixed;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(0,0,0,0.8);
+  color: #fff;
+  padding: 12px 24px;
+  border-radius: 12px;
+  font-size: 14px;
+  opacity: 0;
+  transition: opacity 0.3s;
+  z-index: 10001;
+}
+
+.toast.show {
+  opacity: 1;
+}
+
+.loading-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.7);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 10002;
+}
+
+.spinner {
+  width: 50px;
+  height: 50px;
+  border: 5px solid rgba(255,255,255,0.3);
+  border-top: 5px solid var(--accent-color);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Melhorias de responsividade */
+@media (max-width: 410px) {
+  #navMenu {
+    padding: 10px 15px;
+  }
+
+  .logo-img {
+    width: 80px;
+  }
+
+  .icon-wrapper {
+    gap: 15px;
+  }
+
+  #navMenu svg, #navMenu img:not(.logo-img) {
+    width: 24px;
+    height: 24px;
+  }
+
+  #conversations {
+    margin-top: 80px;
+    padding: 15px;
+  }
+
+  .search-bar {
+    padding: 10px 12px;
+  }
+
+  .search-input {
+    font-size: 14px;
+  }
+
+  .conv-item {
+    padding: 10px;
+    margin-bottom: 10px;
+  }
+
+  .profile-photo {
+    width: 50px;
+    height: 50px;
+    margin-right: 12px;
+  }
+
+  .conv-name {
+    font-size: 14px;
+  }
+
+  .conv-snippet {
+    font-size: 12px;
+  }
+
+  .conv-time {
+    font-size: 10px;
+  }
+
+  .chat-header {
+    padding: 12px 15px;
+  }
+
+  .chat-profile-photo {
+    width: 35px;
+    height: 35px;
+  }
+
+  .chat-name {
+    font-size: 16px;
+  }
+
+  #messages {
+    margin-top: 60px;
+    padding: 15px;
+  }
+
+  .message {
+    font-size: 14px;
+    padding: 10px 14px;
+  }
+
+  #inputArea {
+    padding: 10px 15px;
+  }
+
+  #messageInput {
+    font-size: 14px;
+    padding: 8px 14px;
+  }
+
+  #sendBtn {
+    width: 35px;
+    height: 35px;
+    margin-left: 10px;
+  }
+
+  .popup {
+    padding: 20px;
+    max-width: 90%;
+  }
+
+  .popup h2 {
+    font-size: 18px;
+  }
+
+  .popup button {
+    padding: 12px;
+    font-size: 14px;
+  }
+}
+
+@media (min-width: 768px) {
+  #conversations {
+    max-width: 600px;
+    margin: 100px auto 0;
+    padding: 30px;
+  }
+
+  .popup {
+    max-width: 400px;
+  }
+}
+
+/* Melhorias estéticas: mais sombras, gradients, detalhes */
+.conv-item {
+  background: linear-gradient(135deg, var(--secondary-bg), rgba(171,134,91,0.05));
+}
+
+.message {
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.media-request {
+  box-shadow: 0 4px 12px rgba(171,134,91,0.2);
+}
+
+.unlock-btn {
+  background: linear-gradient(135deg, var(--accent-color), var(--accent-light));
+  box-shadow: 0 4px 12px rgba(171,134,91,0.3);
+}
+
+.unlock-btn:hover {
+  transform: translateY(-1px);
+}
+
+/* SVGs melhorados (usando paths mais suaves e modernos) */
+.input-icon.mic {
+  content: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="%23ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path><path d="M19 10v2a7 7 0 0 1-14 0v-2"></path><line x1="12" y1="19" x2="12" y2="23"></line><line x1="8" y1="23" x2="16" y2="23"></line></svg>');
+}
+
+.input-icon.gif {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--accent-color);
+  background: rgba(255,255,255,0.1);
+  padding: 4px 8px;
+  border-radius: 8px;
+  margin-right: 12px;
+}
+
+.input-icon.memo {
+  content: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="%23ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2"></path><rect x="9" y="3" width="6" height="4" rx="1" ry="1"></rect><path d="M9 12h6"></path><path d="M9 16h6"></path></svg>');
+}
+
+.input-icon.smile {
+  content: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="%23ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="M8 14s1.5 2 4 2 4-2 4-2"></path><line x1="9" y1="9" x2="9.01" y2="9"></line><line x1="15" y1="9" x2="15.01" y2="9"></line></svg>');
+}
+`;
+document.head.appendChild(style);
+
+// ===== Injetar HTML Estrutura =====
+const appHTML = `
+<div id="navMenu">
+  <img class="logo-img" src="https://framerusercontent.com/images/..."> <!-- Coloque o URL real da logo -->
+  <div class="icon-wrapper">
+    <svg class="search-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
+    <div style="position: relative;">
+      <svg class="notif-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.9 2 2 2zm6-6v-5c0-3.07-1.63-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.64 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2zm-2 1H8v-6c0-2.48 1.51-4.5 4-4.5s4 2.02 4 4.5v6z"/></svg>
+      <div class="notif-dot">3</div>
+    </div>
+  </div>
+</div>
+
+<div id="conversations">
+  <h1>Conversas</h1>
+  <div class="search-bar">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
+    <input class="search-input" type="text" placeholder="Pesquisar em minhas conversas">
+  </div>
+  <div class="toggle-wrapper">
+    <span class="toggle-label">Exibir apenas usuários online</span>
+    <div class="toggle" id="onlineToggle"></div>
+  </div>
+  <ul class="conv-list"></ul>
+  <div id="blurredList">
+    <!-- Blurred profiles aqui -->
+  </div>
+</div>
+
+<div id="chatView">
+  <div class="chat-header">
+    <svg class="back-btn" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z"/></svg>
+    <img class="chat-profile-photo" src="">
+    <span class="chat-name"></span>
+    <div class="chat-icons">
+      <svg class="fav-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+    </div>
+  </div>
+  <div id="messages"></div>
+  <div id="inputArea">
+    <img class="input-icon mic" src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23ffffff' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z'></path><path d='M19 10v2a7 7 0 0 1-14 0v-2'></path><line x1='12' y1='19' x2='12' y2='23'></line><line x1='8' y1='23' x2='16' y2='23'></line></svg>">
+    <span class="input-icon gif">GIF</span>
+    <img class="input-icon memo" src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23ffffff' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2'></path><rect x='9' y='3' width='6' height='4' rx='1' ry='1'></rect><path d='M9 12h6'></path><path d='M9 16h6'></path></svg>">
+    <img class="input-icon smile" src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23ffffff' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><circle cx='12' cy='12' r='10'></circle><path d='M8 14s1.5 2 4 2 4-2 4-2'></path><line x1='9' y1='9' x2='9.01' y2='9'></line><line x1='15' y1='9' x2='15.01' y2='9'></line></svg>">
+    <input id="messageInput" type="text" placeholder="Digite uma mensagem">
+    <div id="sendBtn">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="20" height="20" fill="%23fff"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
+    </div>
+  </div>
+</div>
+
+<div class="overlay" id="premiumOverlay">
+  <div class="popup" id="premiumPopup">
+    <h2>Assine o Frame Premium</h2>
+    <p>Desbloqueie acesso completo a conversas, conteúdos exclusivos e muito mais!</p>
+    <button id="premiumBtn">Assinar Agora</button>
+  </div>
+</div>
+
+<div class="overlay" id="infoOverlay">
+  <div class="popup" id="infoPopup">
+    <h2>Frame Premium</h2>
+    <p>Acesse o histórico completo, listas, contatos de WhatsApp e conteúdo 100% exclusivo.</p>
+    <button id="infoBtn">Assinar</button>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<div class="loading-overlay" id="loadingOverlay">
+  <div class="spinner"></div>
+</div>
+`;
+document.body.innerHTML = appHTML;
+
+// Elementos
+const navMenu = document.getElementById('navMenu');
+const conversations = document.getElementById('conversations');
+const chatView = document.getElementById('chatView');
+const backBtn = document.querySelector('.back-btn');
+const messages = document.getElementById('messages');
+const messageInput = document.getElementById('messageInput');
+const sendBtn = document.getElementById('sendBtn');
+const premiumOverlay = document.getElementById('premiumOverlay');
+const premiumPopup = document.getElementById('premiumPopup');
+const premiumBtn = document.getElementById('premiumBtn');
+const infoOverlay = document.getElementById('infoOverlay');
+const infoPopup = document.getElementById('infoPopup');
+const infoBtn = document.getElementById('infoBtn');
+const toast = document.getElementById('toast');
+const loadingOverlay = document.getElementById('loadingOverlay');
+const searchInput = document.querySelector('.search-input');
+const onlineToggle = document.getElementById('onlineToggle');
+const convList = conversations.querySelector('.conv-list');
+const blurredList = document.getElementById('blurredList');
+const favIcon = document.querySelector('.fav-icon');
+const notifIcon = document.querySelector('.notif-icon');
+
+// Perfis (5 visíveis, com ícone em todos, sem verified, snippets de mensagens dos criadores)
+const profiles = [
+  { name: 'Duda Brunet', photo: 'https://framerusercontent.com/images/FoK1KaGDLlF2436osMfHCSU9k.webp', verified: false, icon: '💦', snippet: 'Falando contigo hoje', time: 'set 16' },
+  { name: 'Bianca', photo: 'https://framerusercontent.com/images/rVENuOaqP10FhfIg14tMT2EHFw.jpg', verified: false, icon: '💦', snippet: 'Vídeo inédito! Gozando gostoso...', time: 'set 24' },
+  { name: 'Brenda Trindade', photo: 'https://framerusercontent.com/images/AoXpk0CaadrGaZbN6hglCGqet0.jpg', verified: false, icon: '💦', snippet: 'Estou em live agora ... corre antes ...', time: 'set 10' },
+  { name: 'Mafe', photo: 'https://framerusercontent.com/images/7PQbvug8ntTrX7ryp6PFIWVxUs.png?scale-down-to=1024&width=828&height=1060', verified: false, icon: '💦', snippet: 'Boom dia amor ... hoje acordei animadinha', time: 'Ontem' },
+  { name: 'Letícia Reed', photo: 'https://framerusercontent.com/images/iGsZV81bLARO3rxg0B5S88J4GQU.jpg', verified: false, icon: '💦', snippet: 'Tentamos nos seguir o di...', time: 'ago 18' }
+];
+
+// Perfis blurred (exemplo com Karol Rosalin e mais)
+const blurredProfiles = [
+  { name: 'Karol Rosalin', photo: 'https://example.com/karol.jpg', verified: false, icon: '💦', snippet: 'Vídeo inédito! Gozando gostoso...', time: 'set 24' },
+  { name: 'Outra Criadora', photo: 'https://example.com/outra.jpg', verified: false, icon: '💦', snippet: 'Mensagem exclusiva...', time: 'set 10' }
+  // Adicione mais se necessário
+];
+
+// Funções
+function showToast(message) {
+  toast.textContent = message;
+  toast.classList.add('show');
+  setTimeout(() => toast.classList.remove('show'), 3000);
+}
+
+function showLoading(duration) {
+  loadingOverlay.style.display = 'flex';
+  setTimeout(() => loadingOverlay.style.display = 'none', duration);
+}
+
+function showPremiumPopup() {
+  premiumOverlay.style.display = 'flex';
+  setTimeout(() => premiumPopup.classList.add('active'), 100);
+}
+
+function closePremiumPopup() {
+  premiumPopup.classList.remove('active');
+  setTimeout(() => premiumOverlay.style.display = 'none', 600);
+}
+
+function showInfoPopup() {
+  infoOverlay.style.display = 'flex';
+  setTimeout(() => infoPopup.classList.add('active'), 100);
+}
+
+function closeInfoPopup() {
+  infoPopup.classList.remove('active');
+  setTimeout(() => infoOverlay.style.display = 'none', 600);
+}
+
+function openChat(profile) {
+  document.querySelector('.chat-profile-photo').src = profile.photo;
+  document.querySelector('.chat-name').textContent = profile.name;
+  messages.innerHTML = '';
+  conversations.style.display = 'none';
+  chatView.style.display = 'flex';
+
+  // Adicionar mensagem inicial do criador (sem mensagens do usuário)
+  const initialMessage = document.createElement('div');
+  initialMessage.classList.add('message', 'received');
+  initialMessage.innerHTML = `${profile.snippet}<div class="message-time">08:40</div>`;
+  messages.appendChild(initialMessage);
+
+  // Adicionar solicitação de mídia
+  const mediaRequest = document.createElement('div');
+  mediaRequest.classList.add('media-request');
+  mediaRequest.innerHTML = `
+    <div class="media-title">Solicitação Mídia</div>
+    <div class="media-price">R$ 19,99</div>
+    <button class="unlock-btn">Desbloquear Upload</button>
+    <div class="media-info">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="16" height="16"><path d="M4 6H20V16H4V6Zm0-2V18H20V4H4Z"/></svg>
+      Uploads 1
+    </div>
+    <div class="message-time">08:42 · R$ 19.99 ainda não pago</div>
+  `;
+  messages.appendChild(mediaRequest);
+
+  messages.scrollTop = messages.scrollHeight;
+  favIcon.classList.remove('filled');
+}
+
+function closeChat() {
+  chatView.style.display = 'none';
+  conversations.style.display = 'block';
+}
+
+// Popular lista de conversas
+profiles.forEach(profile => {
+  const li = document.createElement('li');
+  li.classList.add('conv-item');
+  li.innerHTML = `
+    <img class="profile-photo" src="${profile.photo}" alt="${profile.name}">
+    <div class="conv-info">
+      <div class="conv-name">${profile.name}${profile.icon || ''}</div>
+      <div class="conv-snippet">${profile.snippet}</div>
+    </div>
+    <div class="conv-time">${profile.time}</div>
+  `;
+  li.addEventListener('click', () => openChat(profile));
+  convList.appendChild(li);
+});
+
+// Blurred section
+const blurredUl = document.createElement('ul');
+blurredUl.classList.add('conv-list');
+blurredProfiles.forEach(profile => {
+  const li = document.createElement('li');
+  li.classList.add('conv-item');
+  li.innerHTML = `
+    <img class="profile-photo" src="${profile.photo}" alt="${profile.name}">
+    <div class="conv-info">
+      <div class="conv-name">${profile.name}${profile.icon || ''}</div>
+      <div class="conv-snippet">${profile.snippet}</div>
+    </div>
+    <div class="conv-time">${profile.time}</div>
+  `;
+  blurredUl.appendChild(li);
+});
+blurredList.appendChild(blurredUl);
+
+const blurOverlay = document.createElement('div');
+blurOverlay.classList.add('blur-overlay');
+blurOverlay.innerHTML = `
+  <svg class="blur-lock" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+    <path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z"/>
+  </svg>
+  <div class="blur-text">Quer ter acesso ao histórico completo e muito mais? Listas, contatos de WhatsApp, conteúdo 100% exclusivo. Disponível no Frame Premium.</div>
+  <button class="blur-button" id="infoBlurBtn">Saiba Mais</button>
+`;
+blurredList.appendChild(blurOverlay);
+
+// Eventos
+backBtn.addEventListener('click', closeChat);
+
+sendBtn.addEventListener('click', () => {
+  if (messageInput.value.trim()) {
+    showLoading(1000);
+    setTimeout(showPremiumPopup, 1000);
+    messageInput.value = '';
+  } else {
+    showToast('Digite uma mensagem primeiro!');
+  }
+});
+
+messageInput.addEventListener('keypress', e => {
+  if (e.key === 'Enter' && messageInput.value.trim()) {
+    showLoading(1000);
+    setTimeout(showPremiumPopup, 1000);
+    messageInput.value = '';
+  }
+});
+
+premiumOverlay.addEventListener('click', e => { if (e.target === premiumOverlay) closePremiumPopup(); });
+premiumBtn.addEventListener('click', () => {
+  closePremiumPopup();
+  showToast('Redirecionando para assinatura Frame Premium...');
+});
+
+infoOverlay.addEventListener('click', e => { if (e.target === infoOverlay) closeInfoPopup(); });
+infoBtn.addEventListener('click', () => {
+  closeInfoPopup();
+  showPremiumPopup();
+});
+
+document.getElementById('infoBlurBtn')?.addEventListener('click', showInfoPopup);
+
+onlineToggle.addEventListener('click', () => {
+  onlineToggle.classList.toggle('active');
+  showToast(onlineToggle.classList.contains('active') ? 'Mostrando apenas online' : 'Mostrando todos');
+});
+
+searchInput.addEventListener('input', () => {
+  const term = searchInput.value.toLowerCase();
+  [...convList.children, ...blurredUl.children].forEach(item => {
+    item.style.display = item.querySelector('.conv-name').textContent.toLowerCase().includes(term) ? 'flex' : 'none';
+  });
+});
+
+favIcon.addEventListener('click', () => {
+  favIcon.classList.toggle('filled');
+  showToast(favIcon.classList.contains('filled') ? 'Adicionado aos favoritos!' : 'Removido dos favoritos');
+});
+
+notifIcon.addEventListener('click', () => showToast('Novas notificações: Confira o Frame Premium!'));
+
+document.querySelectorAll('.input-icon').forEach(icon => {
+  icon.addEventListener('click', () => showPremiumPopup());
+});
+
+document.querySelector('.notif-dot')?.classList.add('shake');
+setTimeout(() => document.querySelector('.notif-dot')?.classList.remove('shake'), 700);
+
+// Init
+navMenu.style.top = '0';
